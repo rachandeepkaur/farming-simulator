@@ -18,12 +18,16 @@ import os
 import time
 from contextlib import AsyncExitStack
 
+from atlas.envfile import load_local_env
+
+load_local_env()
+
 from fastapi import FastAPI, HTTPException
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel, Field
 
 from atlas import crops, farm, farm_actions, simulate, weather
-from atlas.config import CELLS_PATH, VALLEY_POLYGON
+from atlas.config import CELLS_PATH, ROOT, VALLEY_POLYGON
 from atlas.decide import DeciderPool
 from atlas.rules import rules_decider
 from atlas.scenario import PRESETS, Priorities, Scenario
@@ -49,8 +53,8 @@ LLM_USD_PER_CALL = 0.01
 
 def available_models() -> dict:
     return {
-        "drex": bool(os.environ.get("DEEPINFRA_API_KEY")),
-        "llm": bool(os.environ.get("ANTHROPIC_API_KEY") or os.environ.get("ANTHROPIC_AUTH_TOKEN")),
+        "drex": bool(os.environ.get("DEEPINFRA_API_KEY") or os.environ.get("DREX_API_KEY")),
+        "llm": bool(os.environ.get("ANTHROPIC_API_KEY") or os.environ.get("ANTHROPIC_AUTH_TOKEN") or os.environ.get("FRONTIER_API_KEY")),
         "rules": True,
     }
 
@@ -67,6 +71,7 @@ def meta():
         "cities": CITIES,
         "models": available_models(),
         "llm_usd_per_call": LLM_USD_PER_CALL,
+        "economics_placeholder": farm_actions.ECONOMICS_PLACEHOLDER,
         "constants": {"sustainable_supply_cm": SUSTAINABLE_SUPPLY_CM,
                       "stress_threshold_cm": STRESS_THRESHOLD_CM},
     }
@@ -235,6 +240,7 @@ class FarmRunIn(BaseModel):
     stock: dict[str, int] | None = None         # lime / synthetic / spray_pests / cover_crop per year
     cows: int = Field(24, ge=0, le=200)
     confirm_paid: bool = False
+    include_state: bool = True
 
 
 _farm_cache: dict[str, list[str]] = {}
@@ -287,7 +293,7 @@ async def farm_run(req: FarmRunIn):
                 async for msg in farm_actions.iter_seasons(
                     fields, weather.for_cell(parent), sc, prio, decider, req.model, overrides, stock,
                     _nearest_city(parent["lat"], parent["lon"])["name"], parent["grace"]["trend_cm_yr"],
-                    cows=req.cows, n_years=req.years,
+                    cows=req.cows, n_years=req.years, include_state=req.include_state,
                 ):
                     yield emit(msg)
         except Exception as e:  # noqa: BLE001
@@ -303,4 +309,14 @@ async def farm_run(req: FarmRunIn):
 def farm_questions():
     """The exact question set Drex gets for the farm view (for the request viewer)."""
     return {"questions": farm_actions.FARM_QUESTIONS, "default_stock": farm_actions.DEFAULT_STOCK,
-            "prices_per_acre": farm_actions.PRICE_PER_ACRE, "costs": farm_actions.COST}
+            "prices_per_acre": farm_actions.PRICE_PER_ACRE, "costs": farm_actions.COST,
+            "economics_placeholder": farm_actions.ECONOMICS_PLACEHOLDER}
+
+
+@app.get("/api/farm/benchmark/latest")
+def farm_benchmark_latest():
+    """Newest farm benchmark file, for the Race modal's replayed LLM timer."""
+    files = sorted((ROOT / "results").glob("farm_benchmark_*.json"))
+    if not files:
+        raise HTTPException(404, "no farm benchmark yet")
+    return json.loads(files[-1].read_text(encoding="utf-8"))
