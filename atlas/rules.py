@@ -31,6 +31,7 @@ def facts_from_state(state: str) -> dict:
 
     irrigation = {s: grab(rf"- {s}: .*?irrigation {_NUM} cm/yr") for s in STRATEGIES}
     soil = re.search(rf"soil health {_NUM}/100", state)
+    ph = re.search(rf"Soil pH: {_NUM}", state)
     return {
         "rain_mm": grab(rf"Annual rainfall: {_NUM} mm"),
         "frost_days": grab(rf"Frost days: {_NUM}"),
@@ -40,6 +41,7 @@ def facts_from_state(state: str) -> dict:
         "supply": grab(rf"Sustainable irrigation supply: {_NUM} cm/yr"),
         "irrigation": irrigation,
         "soil_score": float(soil.group(1)) if soil else None,
+        "ph": float(ph.group(1)) if ph else None,
         "save_water": level("save water"),
         "income": level("income"),
         "build_soil": level("build soil"),
@@ -76,6 +78,11 @@ RULES = [
         "cover_crop_gives_nitrogen",
         lambda f, a: a["recommended"]["value"] == "cover_crop",
         lambda f, a: a["soil_benefit"]["value"] == "nitrogen",
+    ),
+    (
+        "lime_when_acidic",
+        lambda f, a: f["ph"] is not None and "needs_lime" in a,
+        lambda f, a: a["needs_lime"]["value"] == (f["ph"] < 6.0),
     ),
     (
         "review_when_groundwater_falling_fast",
@@ -130,6 +137,7 @@ def rule_answers(state: str) -> dict:
         "frost_risk": ch(frost),
         "soil_benefit": ch(soil),
         "needs_local_review": b(review),
+        "needs_lime": b(f["ph"] is not None and f["ph"] < 6.0),
         **{f"fit_{s}": b(fits[s]) for s in STRATEGIES},
     }
 

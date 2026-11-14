@@ -35,10 +35,10 @@ def make_client(max_connections: int = 256) -> httpx.AsyncClient:
     )
 
 
-def normalise(raw_answers: dict) -> dict:
+def normalise(raw_answers: dict, questions: dict | None = None) -> dict:
     """Drex answers -> the shared decision-result shape (schema/README.md §4)."""
     out = {}
-    for key, q in QUESTIONS.items():
+    for key, q in (questions or QUESTIONS).items():
         a = raw_answers.get(key)
         if a is None:
             raise DrexError(f"Drex response missing answer for {key!r}")
@@ -58,9 +58,12 @@ async def decide(
     state: str,
     model: str = DEFAULT_MODEL,
     retries: int = 3,
+    questions: dict | None = None,
 ) -> tuple[dict, float, dict]:
-    """One Drex call. Returns (answers, latency_ms of the successful attempt, usage)."""
-    body = {"model": model, "state": state, "questions": QUESTIONS}
+    """One Drex call. Returns (answers, latency_ms of the successful attempt, usage).
+    `questions` defaults to the rotation question set; the farm view passes its own."""
+    qs = questions or QUESTIONS
+    body = {"model": model, "state": state, "questions": qs}
     for attempt in range(retries + 1):
         t0 = time.perf_counter()
         try:
@@ -80,5 +83,5 @@ async def decide(
         if r.status_code != 200:
             raise DrexError(f"HTTP {r.status_code}: {r.text[:500]}")
         data = r.json()
-        return normalise(data["answers"]), latency_ms, data.get("usage", {})
+        return normalise(data["answers"], qs), latency_ms, data.get("usage", {})
     raise AssertionError("unreachable")

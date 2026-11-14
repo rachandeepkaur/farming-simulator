@@ -25,7 +25,32 @@ export NACE_API_KEY=...      # NDI document parsing
 
 Pass `--model rules` or `--models rules` to any script to run offline with the rule-based decider, which needs no API keys.
 
-## Simulation UI
+## Farm view (the demo): one farm, resource management
+
+One 2-square-mile farm near Fresno, 36 fields of 40 acres, run like a god sim (Hay Day × WorldBox).
+Every season for 10 years of real NASA weather, **Drex decides each field's actions**: how much to
+irrigate, whether to fertilize (with the farm's own **compost** or bought **synthetic** nitrogen),
+lime, spray for pests, or sow a cover crop. **Code enforces the budgets**: each field's surface-water
+share (beyond it, water is pumped from the aquifer), and the year's lime, synthetic N, pesticide and
+cover seed. The farm is circular: cows eat crop residue and cover-crop grazing, and their manure plus
+leftover residue becomes compost that goes back on the fields. Two scores: **sustainability**
+(soil, water from surface not aquifer, renewable inputs, waste recycled) and **efficiency**
+(crop $ per acre-inch of irrigation).
+
+```bash
+uv run python scripts/build_farm.py            # SSURGO soil + pH per field (needs internet; --offline = estimate)
+uv run uvicorn server.app:app --port 8000
+cd web && npm install && npm run dev            # http://localhost:5173
+```
+
+- God tools: scenarios, select an area, replant, paint water shares, per-year resource budgets,
+  herd size, weather powers, farmer priorities. Every change re-decides the whole farm.
+- API: `POST /api/farm/run` streams one NDJSON line per season (`atlas/farm_actions.py`);
+  `GET /api/farm`, `GET /api/farm/questions`.
+- All prices, costs and herd/compost numbers are round illustrative values (see `docs/CURSOR_TASKS.md` #8).
+- Remaining work, split for Cursor agents: [docs/CURSOR_TASKS.md](docs/CURSOR_TASKS.md).
+
+## Single-field simulation UI (original)
 
 Two terminals:
 

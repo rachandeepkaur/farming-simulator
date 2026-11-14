@@ -5,6 +5,7 @@ from __future__ import annotations
 from dataclasses import asdict, dataclass
 
 from .config import DT_STEPS
+from .sim_constants import SUSTAINABLE_SUPPLY_CM
 
 
 @dataclass(frozen=True)
@@ -65,4 +66,9 @@ def apply(cell: dict, sc: Scenario, year: str | None = None) -> dict:
         "heat_days": round(max(0.0, heat), 1),
         "gw_trend_cm_yr": round(cell["grace"]["trend_cm_yr"] + sc.gw_offset_cm_yr, 2),
         "gw_source": cell["grace"]["source"],
+        # Farm fields: surface water allocated to this field (god-mode water
+        # allocation) and its soil. Valley cells fall back to the defaults.
+        "supply_cm": float(cell.get("supply_cm", SUSTAINABLE_SUPPLY_CM)),
+        "soil_aws_cm": (cell.get("soil") or {}).get("aws_cm"),
+        "soil_ph": cell.get("ph", (cell.get("soil") or {}).get("ph")),
     }

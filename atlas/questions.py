@@ -51,6 +51,15 @@ QUESTIONS: dict = {
             "borderline or the data is thin (for example a fallback groundwater value)?"
         ),
     },
+    # Farm view: soil pH. When this is yes the farm sends a tractor to lime the field.
+    "needs_lime": {
+        "type": "noul",
+        "instructions": "Is this field's soil acidic enough that it should be limed before the next crop?",
+        "criteria": {
+            "true": "Soil pH is below about 6.0, where most of these crops lose yield.",
+            "false": "Soil pH is 6.0 or higher, or not stated.",
+        },
+    },
     # Additions to the PRD's five: water fit for every strategy, so the field
     # card can compare all three without extra calls.
     "fit_existing": {

@@ -15,6 +15,9 @@ from .config import REPLAY_YEARS
 from .decide import Decider, decide_states
 from .scenario import PRESETS, Priorities, Scenario, apply
 from .sim_constants import (
+    PH_HIGH,
+    PH_LOW,
+    PH_SOIL_PENALTY,
     PUMP_TO_STORAGE,
     RECHARGE_SHARE,
     SOIL_DELTA,
@@ -33,8 +36,9 @@ def initial_state() -> dict:
 def water_balance(climate: dict, strategy: str) -> tuple[float, float, float]:
     """(water need, shortfall pumped beyond sustainable supply, recharge), cm."""
     rain_cm = climate["rain_mm"] / 10
-    need, used_rain, irrigation = crops.strategy_irrigation_cm(strategy, climate["rain_mm"], climate["heat_days"])
-    shortfall = max(0.0, irrigation - SUSTAINABLE_SUPPLY_CM)
+    need, used_rain, irrigation = crops.strategy_irrigation_cm(
+        strategy, climate["rain_mm"], climate["heat_days"], climate.get("soil_aws_cm"))
+    shortfall = max(0.0, irrigation - climate.get("supply_cm", SUSTAINABLE_SUPPLY_CM))
     recharge = max(0.0, rain_cm - used_rain) * RECHARGE_SHARE
     return need, shortfall, recharge
 
@@ -62,6 +66,9 @@ def simulate_year(sim: dict, climate: dict, strategy: str, baseline: dict) -> di
     soil = sim["soil_score"] + SOIL_DELTA[strategy]
     if strategy == sim["last_strategy"] and strategy != "cover_crop":
         soil += SOIL_REPEAT_PENALTY
+    ph = climate.get("soil_ph")
+    if ph is not None and (ph < PH_LOW or ph > PH_HIGH):
+        soil += PH_SOIL_PENALTY
     soil = min(100.0, max(0.0, soil))
 
     return {
@@ -97,7 +104,11 @@ async def iter_years(
     where records maps cell id -> that year's record, so a server can stream
     the map as it fills in."""
     sims = {c["id"]: initial_state() for c in cells}
-    baselines = {c["id"]: apply(c, PRESETS["Today"]) for c in cells}
+    # Baseline = existing rotation, today's climate, the usual supply: the
+    # pumping already inside the GRACE trend. A field's water allocation is a
+    # change from that, so it is NOT in the baseline (cutting a field's water
+    # really does push it to pump more, unless the strategy changes).
+    baselines = {c["id"]: apply({**c, "supply_cm": SUSTAINABLE_SUPPLY_CM}, PRESETS["Today"]) for c in cells}
 
     for display_year, power_year in scenario_years(scenario, n_years):
         items = [
@@ -136,8 +147,12 @@ async def iter_years(
                 "rain_mm": climate["rain_mm"],
                 "frost_days": climate["frost_days"],
                 "heat_days": climate["heat_days"],
+                "supply_cm": climate["supply_cm"],
+                "soil_ph": climate.get("soil_ph"),
+                "shortfall_cm": nxt["shortfall_cm"],
                 "irrigation_cm": {
-                    s: crops.strategy_irrigation_cm(s, climate["rain_mm"], climate["heat_days"])[2]
+                    s: crops.strategy_irrigation_cm(s, climate["rain_mm"], climate["heat_days"],
+                                                    climate.get("soil_aws_cm"))[2]
                     for s in crops.STRATEGIES
                 },
                 "answers": None if a is None else {
@@ -145,6 +160,7 @@ async def iter_years(
                     "soil_benefit": a["soil_benefit"]["value"],
                     "fits": {s: a[f"fit_{s}"]["value"] for s in crops.STRATEGIES},
                     "recommended_probs": a["recommended"].get("probs") or {},
+                    "needs_lime": a.get("needs_lime", {}).get("value"),
                 },
                 "error": r["error"],
             }

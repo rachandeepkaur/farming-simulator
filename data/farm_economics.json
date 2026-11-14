@@ -1,0 +1,74 @@
+{
+  "placeholder": true,
+  "note": "Round illustrative values. Each source names the UC Davis cost-and-return study that should replace it. The UI says illustrative while placeholder is true.",
+  "price_per_acre": {
+    "processing_tomato": {
+      "value": 3500,
+      "unit": "USD per acre at full crop health",
+      "placeholder": true,
+      "source": "placeholder — UC Davis Agricultural and Resource Economics, Sample Costs to Produce Processing Tomatoes, San Joaquin Valley"
+    },
+    "winter_wheat": {
+      "value": 650,
+      "unit": "USD per acre at full crop health",
+      "placeholder": true,
+      "source": "placeholder — UC Davis Agricultural and Resource Economics, Sample Costs to Produce Wheat, San Joaquin Valley"
+    },
+    "safflower": {
+      "value": 550,
+      "unit": "USD per acre at full crop health",
+      "placeholder": true,
+      "source": "placeholder — UC Davis Agricultural and Resource Economics, Sample Costs to Produce Safflower, San Joaquin Valley"
+    }
+  },
+  "cost": {
+    "synthetic": {
+      "value": 2000,
+      "unit": "USD per field application",
+      "placeholder": true,
+      "source": "placeholder — UC Davis cost-and-return studies, synthetic nitrogen, San Joaquin Valley"
+    },
+    "compost": {
+      "value": 300,
+      "unit": "USD per field application",
+      "placeholder": true,
+      "source": "placeholder — spreading cost only; the compost itself comes from the farm herd"
+    },
+    "lime": {
+      "value": 1200,
+      "unit": "USD per field application",
+      "placeholder": true,
+      "source": "placeholder — UC Davis cost-and-return studies, lime, San Joaquin Valley"
+    },
+    "spray_pests": {
+      "value": 1500,
+      "unit": "USD per field application",
+      "placeholder": true,
+      "source": "placeholder — UC Davis cost-and-return studies, insecticide, San Joaquin Valley"
+    },
+    "cover_crop": {
+      "value": 800,
+      "unit": "USD per field application",
+      "placeholder": true,
+      "source": "placeholder — UC Davis / UC ANR cover-crop seed and planting cost, San Joaquin Valley"
+    }
+  },
+  "pump_cost_per_cm_acre": {
+    "value": 14.0,
+    "unit": "USD per cm of pumped water per acre",
+    "placeholder": true,
+    "source": "placeholder — UC Davis irrigation pumping cost, San Joaquin Valley"
+  },
+  "feed_price": {
+    "value": 600,
+    "unit": "USD per load of bought feed",
+    "placeholder": true,
+    "source": "placeholder — UC Davis dairy cost study, purchased feed"
+  },
+  "milk_per_cow": {
+    "value": 900,
+    "unit": "USD per cow per season when fully fed",
+    "placeholder": true,
+    "source": "placeholder — UC Davis dairy cost study, milk revenue per cow"
+  }
+}

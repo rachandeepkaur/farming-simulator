@@ -34,9 +34,10 @@ class LLMError(RuntimeError):
     pass
 
 
-def output_schema() -> dict:
+def output_schema(questions: dict | None = None) -> dict:
+    questions = questions or QUESTIONS
     props = {}
-    for key, q in QUESTIONS.items():
+    for key, q in questions.items():
         if q["type"] == "noul":
             props[key] = {"type": "boolean"}
         else:
@@ -44,14 +45,14 @@ def output_schema() -> dict:
     return {
         "type": "object",
         "properties": props,
-        "required": list(QUESTIONS),
+        "required": list(questions),
         "additionalProperties": False,
     }
 
 
-def questions_text() -> str:
+def questions_text(questions: dict | None = None) -> str:
     lines = []
-    for key, q in QUESTIONS.items():
+    for key, q in (questions or QUESTIONS).items():
         if q["type"] == "noul":
             lines.append(f"- {key} (true/false): {q['instructions']}")
         else:
@@ -70,16 +71,20 @@ async def decide(
     state: str,
     model: str = DEFAULT_MODEL,
     effort: str = DEFAULT_EFFORT,
+    questions: dict | None = None,
+    system: str | None = None,
 ) -> tuple[dict, float, dict]:
-    """One LLM call. Returns (answers, latency_ms, usage)."""
+    """One LLM call. Returns (answers, latency_ms, usage). The farm view passes
+    its own `questions` and `system`; the default is the rotation set."""
+    qs = questions or QUESTIONS
     t0 = time.perf_counter()
     try:
         resp = await client.beta.messages.create(
             model=model,
             max_tokens=4096,
-            system=SYSTEM,
-            messages=[{"role": "user", "content": f"{state}\n\nQuestions:\n{questions_text()}"}],
-            output_config={"effort": effort, "format": {"type": "json_schema", "schema": output_schema()}},
+            system=system or SYSTEM,
+            messages=[{"role": "user", "content": f"{state}\n\nQuestions:\n{questions_text(qs)}"}],
+            output_config={"effort": effort, "format": {"type": "json_schema", "schema": output_schema(qs)}},
             # Server-side refusal fallback: routes a declined request to a fallback model.
             betas=["server-side-fallback-2026-07-01"],
             fallbacks="default",
@@ -102,7 +107,7 @@ async def decide(
     raw = json.loads(text)
 
     answers = {}
-    for key, q in QUESTIONS.items():
+    for key, q in qs.items():
         if q["type"] == "noul":
             answers[key] = {"value": bool(raw[key]), "p": None}
         else:

@@ -1,0 +1,840 @@
+{
+ "center": [
+  36.45,
+  -119.95
+ ],
+ "n": 6,
+ "field_m": 402.0,
+ "parent_cell": "r041c024",
+ "soil_resolved": 0,
+ "fields": [
+  {
+   "id": "f00",
+   "row": 0,
+   "col": 0,
+   "lat": 36.45903,
+   "lon": -119.96122,
+   "bbox": [
+    -119.96347,
+    36.45722,
+    -119.95898,
+    36.46083
+   ],
+   "acres": 39.9,
+   "crop": "processing_tomato",
+   "soil": {
+    "aws_cm": 15.0,
+    "ph": 7.8,
+    "name": null,
+    "drainage": null,
+    "mukey": null,
+    "source": "estimate"
+   }
+  },
+  {
+   "id": "f01",
+   "row": 0,
+   "col": 1,
+   "lat": 36.45903,
+   "lon": -119.95673,
+   "bbox": [
+    -119.95898,
+    36.45722,
+    -119.95449,
+    36.46083
+   ],
+   "acres": 39.9,
+   "crop": "processing_tomato",
+   "soil": {
+    "aws_cm": 16.0,
+    "ph": 7.7,
+    "name": null,
+    "drainage": null,
+    "mukey": null,
+    "source": "estimate"
+   }
+  },
+  {
+   "id": "f02",
+   "row": 0,
+   "col": 2,
+   "lat": 36.45903,
+   "lon": -119.95224,
+   "bbox": [
+    -119.95449,
+    36.45722,
+    -119.95,
+    36.46083
+   ],
+   "acres": 39.9,
+   "crop": "processing_tomato",
+   "soil": {
+    "aws_cm": 16.8,
+    "ph": 7.5,
+    "name": null,
+    "drainage": null,
+    "mukey": null,
+    "source": "estimate"
+   }
+  },
+  {
+   "id": "f03",
+   "row": 0,
+   "col": 3,
+   "lat": 36.45903,
+   "lon": -119.94776,
+   "bbox": [
+    -119.95,
+    36.45722,
+    -119.94551,
+    36.46083
+   ],
+   "acres": 39.9,
+   "crop": "processing_tomato",
+   "soil": {
+    "aws_cm": 17.3,
+    "ph": 7.3,
+    "name": null,
+    "drainage": null,
+    "mukey": null,
+    "source": "estimate"
+   }
+  },
+  {
+   "id": "f04",
+   "row": 0,
+   "col": 4,
+   "lat": 36.45903,
+   "lon": -119.94327,
+   "bbox": [
+    -119.94551,
+    36.45722,
+    -119.94102,
+    36.46083
+   ],
+   "acres": 39.9,
+   "crop": "winter_wheat",
+   "soil": {
+    "aws_cm": 17.5,
+    "ph": 7.1,
+    "name": null,
+    "drainage": null,
+    "mukey": null,
+    "source": "estimate"
+   }
+  },
+  {
+   "id": "f05",
+   "row": 0,
+   "col": 5,
+   "lat": 36.45903,
+   "lon": -119.93878,
+   "bbox": [
+    -119.94102,
+    36.45722,
+    -119.93653,
+    36.46083
+   ],
+   "acres": 39.9,
+   "crop": "winter_wheat",
+   "soil": {
+    "aws_cm": 17.3,
+    "ph": 7.0,
+    "name": null,
+    "drainage": null,
+    "mukey": null,
+    "source": "estimate"
+   }
+  },
+  {
+   "id": "f10",
+   "row": 1,
+   "col": 0,
+   "lat": 36.45542,
+   "lon": -119.96122,
+   "bbox": [
+    -119.96347,
+    36.45361,
+    -119.95898,
+    36.45722
+   ],
+   "acres": 39.9,
+   "crop": "processing_tomato",
+   "soil": {
+    "aws_cm": 19.9,
+    "ph": 7.9,
+    "name": null,
+    "drainage": null,
+    "mukey": null,
+    "source": "estimate"
+   }
+  },
+  {
+   "id": "f11",
+   "row": 1,
+   "col": 1,
+   "lat": 36.45542,
+   "lon": -119.95673,
+   "bbox": [
+    -119.95898,
+    36.45361,
+    -119.95449,
+    36.45722
+   ],
+   "acres": 39.9,
+   "crop": "processing_tomato",
+   "soil": {
+    "aws_cm": 20.3,
+    "ph": 7.8,
+    "name": null,
+    "drainage": null,
+    "mukey": null,
+    "source": "estimate"
+   }
+  },
+  {
+   "id": "f12",
+   "row": 1,
+   "col": 2,
+   "lat": 36.45542,
+   "lon": -119.95224,
+   "bbox": [
+    -119.95449,
+    36.45361,
+    -119.95,
+    36.45722
+   ],
+   "acres": 39.9,
+   "crop": "processing_tomato",
+   "soil": {
+    "aws_cm": 19.7,
+    "ph": 7.6,
+    "name": null,
+    "drainage": null,
+    "mukey": null,
+    "source": "estimate"
+   }
+  },
+  {
+   "id": "f13",
+   "row": 1,
+   "col": 3,
+   "lat": 36.45542,
+   "lon": -119.94776,
+   "bbox": [
+    -119.95,
+    36.45361,
+    -119.94551,
+    36.45722
+   ],
+   "acres": 39.9,
+   "crop": "processing_tomato",
+   "soil": {
+    "aws_cm": 18.3,
+    "ph": 7.3,
+    "name": null,
+    "drainage": null,
+    "mukey": null,
+    "source": "estimate"
+   }
+  },
+  {
+   "id": "f14",
+   "row": 1,
+   "col": 4,
+   "lat": 36.45542,
+   "lon": -119.94327,
+   "bbox": [
+    -119.94551,
+    36.45361,
+    -119.94102,
+    36.45722
+   ],
+   "acres": 39.9,
+   "crop": "winter_wheat",
+   "soil": {
+    "aws_cm": 16.3,
+    "ph": 7.0,
+    "name": null,
+    "drainage": null,
+    "mukey": null,
+    "source": "estimate"
+   }
+  },
+  {
+   "id": "f15",
+   "row": 1,
+   "col": 5,
+   "lat": 36.45542,
+   "lon": -119.93878,
+   "bbox": [
+    -119.94102,
+    36.45361,
+    -119.93653,
+    36.45722
+   ],
+   "acres": 39.9,
+   "crop": "winter_wheat",
+   "soil": {
+    "aws_cm": 14.2,
+    "ph": 6.9,
+    "name": null,
+    "drainage": null,
+    "mukey": null,
+    "source": "estimate"
+   }
+  },
+  {
+   "id": "f20",
+   "row": 2,
+   "col": 0,
+   "lat": 36.45181,
+   "lon": -119.96122,
+   "bbox": [
+    -119.96347,
+    36.45,
+    -119.95898,
+    36.45361
+   ],
+   "acres": 39.9,
+   "crop": "processing_tomato",
+   "soil": {
+    "aws_cm": 23.3,
+    "ph": 7.8,
+    "name": null,
+    "drainage": null,
+    "mukey": null,
+    "source": "estimate"
+   }
+  },
+  {
+   "id": "f21",
+   "row": 2,
+   "col": 1,
+   "lat": 36.45181,
+   "lon": -119.95673,
+   "bbox": [
+    -119.95898,
+    36.45,
+    -119.95449,
+    36.45361
+   ],
+   "acres": 39.9,
+   "crop": "processing_tomato",
+   "soil": {
+    "aws_cm": 23.1,
+    "ph": 7.8,
+    "name": null,
+    "drainage": null,
+    "mukey": null,
+    "source": "estimate"
+   }
+  },
+  {
+   "id": "f22",
+   "row": 2,
+   "col": 2,
+   "lat": 36.45181,
+   "lon": -119.95224,
+   "bbox": [
+    -119.95449,
+    36.45,
+    -119.95,
+    36.45361
+   ],
+   "acres": 39.9,
+   "crop": "processing_tomato",
+   "soil": {
+    "aws_cm": 21.5,
+    "ph": 7.5,
+    "name": null,
+    "drainage": null,
+    "mukey": null,
+    "source": "estimate"
+   }
+  },
+  {
+   "id": "f23",
+   "row": 2,
+   "col": 3,
+   "lat": 36.45181,
+   "lon": -119.94776,
+   "bbox": [
+    -119.95,
+    36.45,
+    -119.94551,
+    36.45361
+   ],
+   "acres": 39.9,
+   "crop": "processing_tomato",
+   "soil": {
+    "aws_cm": 18.6,
+    "ph": 7.3,
+    "name": null,
+    "drainage": null,
+    "mukey": null,
+    "source": "estimate"
+   }
+  },
+  {
+   "id": "f24",
+   "row": 2,
+   "col": 4,
+   "lat": 36.45181,
+   "lon": -119.94327,
+   "bbox": [
+    -119.94551,
+    36.45,
+    -119.94102,
+    36.45361
+   ],
+   "acres": 39.9,
+   "crop": "winter_wheat",
+   "soil": {
+    "aws_cm": 15.1,
+    "ph": 7.0,
+    "name": null,
+    "drainage": null,
+    "mukey": null,
+    "source": "estimate"
+   }
+  },
+  {
+   "id": "f25",
+   "row": 2,
+   "col": 5,
+   "lat": 36.45181,
+   "lon": -119.93878,
+   "bbox": [
+    -119.94102,
+    36.45,
+    -119.93653,
+    36.45361
+   ],
+   "acres": 39.9,
+   "crop": "winter_wheat",
+   "soil": {
+    "aws_cm": 11.7,
+    "ph": 7.0,
+    "name": null,
+    "drainage": null,
+    "mukey": null,
+    "source": "estimate"
+   }
+  },
+  {
+   "id": "f30",
+   "row": 3,
+   "col": 0,
+   "lat": 36.44819,
+   "lon": -119.96122,
+   "bbox": [
+    -119.96347,
+    36.44639,
+    -119.95898,
+    36.45
+   ],
+   "acres": 39.9,
+   "crop": "processing_tomato",
+   "soil": {
+    "aws_cm": 24.2,
+    "ph": 7.7,
+    "name": null,
+    "drainage": null,
+    "mukey": null,
+    "source": "estimate"
+   }
+  },
+  {
+   "id": "f31",
+   "row": 3,
+   "col": 1,
+   "lat": 36.44819,
+   "lon": -119.95673,
+   "bbox": [
+    -119.95898,
+    36.44639,
+    -119.95449,
+    36.45
+   ],
+   "acres": 39.9,
+   "crop": "processing_tomato",
+   "soil": {
+    "aws_cm": 23.7,
+    "ph": 7.6,
+    "name": null,
+    "drainage": null,
+    "mukey": null,
+    "source": "estimate"
+   }
+  },
+  {
+   "id": "f32",
+   "row": 3,
+   "col": 2,
+   "lat": 36.44819,
+   "lon": -119.95224,
+   "bbox": [
+    -119.95449,
+    36.44639,
+    -119.95,
+    36.45
+   ],
+   "acres": 39.9,
+   "crop": "winter_wheat",
+   "soil": {
+    "aws_cm": 21.5,
+    "ph": 7.5,
+    "name": null,
+    "drainage": null,
+    "mukey": null,
+    "source": "estimate"
+   }
+  },
+  {
+   "id": "f33",
+   "row": 3,
+   "col": 3,
+   "lat": 36.44819,
+   "lon": -119.94776,
+   "bbox": [
+    -119.95,
+    36.44639,
+    -119.94551,
+    36.45
+   ],
+   "acres": 39.9,
+   "crop": "winter_wheat",
+   "soil": {
+    "aws_cm": 18.1,
+    "ph": 7.3,
+    "name": null,
+    "drainage": null,
+    "mukey": null,
+    "source": "estimate"
+   }
+  },
+  {
+   "id": "f34",
+   "row": 3,
+   "col": 4,
+   "lat": 36.44819,
+   "lon": -119.94327,
+   "bbox": [
+    -119.94551,
+    36.44639,
+    -119.94102,
+    36.45
+   ],
+   "acres": 39.9,
+   "crop": "safflower",
+   "soil": {
+    "aws_cm": 14.2,
+    "ph": 7.2,
+    "name": null,
+    "drainage": null,
+    "mukey": null,
+    "source": "estimate"
+   }
+  },
+  {
+   "id": "f35",
+   "row": 3,
+   "col": 5,
+   "lat": 36.44819,
+   "lon": -119.93878,
+   "bbox": [
+    -119.94102,
+    36.44639,
+    -119.93653,
+    36.45
+   ],
+   "acres": 39.9,
+   "crop": "safflower",
+   "soil": {
+    "aws_cm": 10.4,
+    "ph": 7.1,
+    "name": null,
+    "drainage": null,
+    "mukey": null,
+    "source": "estimate"
+   }
+  },
+  {
+   "id": "f40",
+   "row": 4,
+   "col": 0,
+   "lat": 36.44458,
+   "lon": -119.96122,
+   "bbox": [
+    -119.96347,
+    36.44278,
+    -119.95898,
+    36.44639
+   ],
+   "acres": 39.9,
+   "crop": "processing_tomato",
+   "soil": {
+    "aws_cm": 22.5,
+    "ph": 7.4,
+    "name": null,
+    "drainage": null,
+    "mukey": null,
+    "source": "estimate"
+   }
+  },
+  {
+   "id": "f41",
+   "row": 4,
+   "col": 1,
+   "lat": 36.44458,
+   "lon": -119.95673,
+   "bbox": [
+    -119.95898,
+    36.44278,
+    -119.95449,
+    36.44639
+   ],
+   "acres": 39.9,
+   "crop": "processing_tomato",
+   "soil": {
+    "aws_cm": 21.7,
+    "ph": 7.4,
+    "name": null,
+    "drainage": null,
+    "mukey": null,
+    "source": "estimate"
+   }
+  },
+  {
+   "id": "f42",
+   "row": 4,
+   "col": 2,
+   "lat": 36.44458,
+   "lon": -119.95224,
+   "bbox": [
+    -119.95449,
+    36.44278,
+    -119.95,
+    36.44639
+   ],
+   "acres": 39.9,
+   "crop": "winter_wheat",
+   "soil": {
+    "aws_cm": 19.7,
+    "ph": 7.4,
+    "name": null,
+    "drainage": null,
+    "mukey": null,
+    "source": "estimate"
+   }
+  },
+  {
+   "id": "f43",
+   "row": 4,
+   "col": 3,
+   "lat": 36.44458,
+   "lon": -119.94776,
+   "bbox": [
+    -119.95,
+    36.44278,
+    -119.94551,
+    36.44639
+   ],
+   "acres": 39.9,
+   "crop": "winter_wheat",
+   "soil": {
+    "aws_cm": 16.9,
+    "ph": 7.4,
+    "name": null,
+    "drainage": null,
+    "mukey": null,
+    "source": "estimate"
+   }
+  },
+  {
+   "id": "f44",
+   "row": 4,
+   "col": 4,
+   "lat": 36.44458,
+   "lon": -119.94327,
+   "bbox": [
+    -119.94551,
+    36.44278,
+    -119.94102,
+    36.44639
+   ],
+   "acres": 39.9,
+   "crop": "safflower",
+   "soil": {
+    "aws_cm": 13.6,
+    "ph": 7.4,
+    "name": null,
+    "drainage": null,
+    "mukey": null,
+    "source": "estimate"
+   }
+  },
+  {
+   "id": "f45",
+   "row": 4,
+   "col": 5,
+   "lat": 36.44458,
+   "lon": -119.93878,
+   "bbox": [
+    -119.94102,
+    36.44278,
+    -119.93653,
+    36.44639
+   ],
+   "acres": 39.9,
+   "crop": "safflower",
+   "soil": {
+    "aws_cm": 10.7,
+    "ph": 7.4,
+    "name": null,
+    "drainage": null,
+    "mukey": null,
+    "source": "estimate"
+   }
+  },
+  {
+   "id": "f50",
+   "row": 5,
+   "col": 0,
+   "lat": 36.44097,
+   "lon": -119.96122,
+   "bbox": [
+    -119.96347,
+    36.43917,
+    -119.95898,
+    36.44278
+   ],
+   "acres": 39.9,
+   "crop": "processing_tomato",
+   "soil": {
+    "aws_cm": 18.7,
+    "ph": 7.2,
+    "name": null,
+    "drainage": null,
+    "mukey": null,
+    "source": "estimate"
+   }
+  },
+  {
+   "id": "f51",
+   "row": 5,
+   "col": 1,
+   "lat": 36.44097,
+   "lon": -119.95673,
+   "bbox": [
+    -119.95898,
+    36.43917,
+    -119.95449,
+    36.44278
+   ],
+   "acres": 39.9,
+   "crop": "processing_tomato",
+   "soil": {
+    "aws_cm": 17.9,
+    "ph": 7.2,
+    "name": null,
+    "drainage": null,
+    "mukey": null,
+    "source": "estimate"
+   }
+  },
+  {
+   "id": "f52",
+   "row": 5,
+   "col": 2,
+   "lat": 36.44097,
+   "lon": -119.95224,
+   "bbox": [
+    -119.95449,
+    36.43917,
+    -119.95,
+    36.44278
+   ],
+   "acres": 39.9,
+   "crop": "winter_wheat",
+   "soil": {
+    "aws_cm": 16.7,
+    "ph": 7.3,
+    "name": null,
+    "drainage": null,
+    "mukey": null,
+    "source": "estimate"
+   }
+  },
+  {
+   "id": "f53",
+   "row": 5,
+   "col": 3,
+   "lat": 36.44097,
+   "lon": -119.94776,
+   "bbox": [
+    -119.95,
+    36.43917,
+    -119.94551,
+    36.44278
+   ],
+   "acres": 39.9,
+   "crop": "winter_wheat",
+   "soil": {
+    "aws_cm": 15.1,
+    "ph": 7.5,
+    "name": null,
+    "drainage": null,
+    "mukey": null,
+    "source": "estimate"
+   }
+  },
+  {
+   "id": "f54",
+   "row": 5,
+   "col": 4,
+   "lat": 36.44097,
+   "lon": -119.94327,
+   "bbox": [
+    -119.94551,
+    36.43917,
+    -119.94102,
+    36.44278
+   ],
+   "acres": 39.9,
+   "crop": "safflower",
+   "soil": {
+    "aws_cm": 13.6,
+    "ph": 7.6,
+    "name": null,
+    "drainage": null,
+    "mukey": null,
+    "source": "estimate"
+   }
+  },
+  {
+   "id": "f55",
+   "row": 5,
+   "col": 5,
+   "lat": 36.44097,
+   "lon": -119.93878,
+   "bbox": [
+    -119.94102,
+    36.43917,
+    -119.93653,
+    36.44278
+   ],
+   "acres": 39.9,
+   "crop": "safflower",
+   "soil": {
+    "aws_cm": 12.2,
+    "ph": 7.6,
+    "name": null,
+    "drainage": null,
+    "mukey": null,
+    "source": "estimate"
+   }
+  }
+ ]
+}

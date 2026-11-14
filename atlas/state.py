@@ -36,12 +36,22 @@ def build_state(
         f"Days above 35 C: {c['heat_days']:.0f}.",
         f"Groundwater storage trend: {c['gw_trend_cm_yr']:+.1f} cm/yr "
         f"({'GRACE satellite' if c['gw_source'] == 'grace' else 'fallback estimate, not measured here'}).",
-        f"Sustainable irrigation supply: {SUSTAINABLE_SUPPLY_CM:.0f} cm/yr "
-        "(more than this draws down groundwater).",
+        f"Sustainable irrigation supply: {c['supply_cm']:.0f} cm/yr "
+        "(more than this draws down groundwater)."
+        + (f" Water allocated to this field is {'below' if c['supply_cm'] < SUSTAINABLE_SUPPLY_CM else 'above'} "
+           f"the farm's usual {SUSTAINABLE_SUPPLY_CM:.0f} cm." if abs(c['supply_cm'] - SUSTAINABLE_SUPPLY_CM) >= 1 else ""),
         "Strategies this year (crop water use, part covered by rain, irrigation needed):",
     ]
+    if c.get("soil_ph") is not None:
+        ph = c["soil_ph"]
+        note = "acidic, lime recommended" if ph < 6.0 else "alkaline" if ph > 8.4 else "within the usual range"
+        lines.insert(-1, f"Soil pH: {ph:.1f} ({note}).")
+    if c["soil_aws_cm"] is not None:
+        soil = cell.get("soil") or {}
+        lines.insert(-1, f"Soil: holds {c['soil_aws_cm'] * 10:.0f} mm of plant-available water in the top 1.5 m "
+                         f"({soil.get('name') or 'SSURGO map unit' if soil.get('source') == 'ssurgo' else 'estimate, not measured here'}).")
     for s in STRATEGIES:
-        need, rain_used, irr = crops.strategy_irrigation_cm(s, c["rain_mm"], c["heat_days"])
+        need, rain_used, irr = crops.strategy_irrigation_cm(s, c["rain_mm"], c["heat_days"], c["soil_aws_cm"])
         lines.append(
             f"- {s}: {crops.strategy_summary(s)}; uses {need:.0f} cm/yr, "
             f"rain covers {rain_used:.0f}, irrigation {irr:.0f} cm/yr."

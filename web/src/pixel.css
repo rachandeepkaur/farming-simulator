@@ -1,0 +1,96 @@
+/* Pixel-art game shell around the farm map. The data panels inside keep
+   styles.css; this file only styles the frame, tools and HUD. */
+@import url("https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap");
+
+.px-app { position: fixed; inset: 0; overflow: hidden; background: #c9a66b; font-family: "VT323", monospace; color: #2b1d14; }
+.px-app canvas.world { position: absolute; inset: 0; width: 100%; height: 100%; image-rendering: pixelated; cursor: grab; display: block; }
+.px-app canvas.world.painting { cursor: crosshair; }
+
+.px-panel { position: absolute; background: #f4e4c1; border: 4px solid #663931; border-radius: 2px;
+  box-shadow: inset 0 0 0 3px #e8d1a0, 4px 4px 0 rgba(0, 0, 0, 0.35); padding: 10px 12px; z-index: 2; }
+.px-title { font-family: "Press Start 2P", monospace; font-size: 10px; color: #663931; margin: 10px 0 6px; letter-spacing: 0.5px; }
+.px-title:first-child { margin-top: 0; }
+.px-hint { font-size: 17px; line-height: 1.05; color: #6b4a33; margin: 4px 0 6px; }
+.px-row { display: flex; gap: 5px; align-items: center; flex-wrap: wrap; }
+.px-row.wrap { flex-wrap: wrap; }
+.px-row.between { justify-content: space-between; }
+.px-btn { font-family: "VT323", monospace; font-size: 19px; line-height: 1.1; background: #fff6dc; color: #2b1d14; border: 3px solid #663931;
+  box-shadow: inset -3px -3px 0 #e8d1a0; padding: 2px 8px; cursor: pointer; border-radius: 0; }
+.px-btn:hover { background: #fff; }
+.px-btn:active { box-shadow: inset 3px 3px 0 #e8d1a0; }
+.px-btn.on { background: #ffd76a; border-color: #7a3d12; }
+.px-btn.sm { font-size: 16px; padding: 1px 6px; }
+.px-btn.wide { width: 100%; margin-top: 4px; }
+.px-lbl { display: flex; justify-content: space-between; font-size: 18px; margin-top: 2px; }
+.px-app input[type="range"] { width: 100%; accent-color: #8f563b; }
+.px-bar { height: 12px; background: #e8d1a0; border: 2px solid #663931; margin-top: 4px; }
+.px-bar > i { display: block; height: 100%; }
+
+.px-top { top: 10px; left: 290px; right: 10px; display: flex; gap: 12px; align-items: center; white-space: nowrap; padding: 6px 12px; }
+.px-top .px-row { flex-wrap: nowrap; }
+.px-top .px-sub { flex: 1; overflow: hidden; text-overflow: ellipsis; }
+.px-logo { font-family: "Press Start 2P", monospace; font-size: 13px; color: #663931; }
+.px-sub { font-size: 17px; color: #6b4a33; }
+.px-date { font-family: "Press Start 2P", monospace; font-size: 12px; background: #2b1d14; color: #ffd76a; padding: 5px 8px; min-width: 110px; text-align: center; }
+
+.px-tools { top: 10px; left: 10px; width: 270px; bottom: 10px; overflow: auto; }
+.px-card { top: 70px; right: 10px; width: 430px; max-height: calc(100vh - 200px); overflow: auto; font-family: system-ui, sans-serif; font-size: 14px; }
+.px-card .px-title, .px-card .px-hint { font-family: inherit; }
+.px-card .px-title { font-family: "Press Start 2P", monospace; }
+.px-card .px-hint { font-family: "VT323", monospace; }
+.px-stage { border: 3px solid #663931; margin: 6px 0; background: #fff; }
+.px-stage .stage { margin: 0; }
+.px-card .card { background: #fffaf0; border: 2px solid #e8d1a0; box-shadow: none; }
+
+.px-bottom { bottom: 10px; left: 290px; right: 10px; display: flex; gap: 6px 18px; align-items: center; flex-wrap: wrap; padding: 6px 12px; }
+.px-legend { display: flex; gap: 12px; font-size: 18px; }
+.px-legend i { display: inline-block; width: 14px; height: 14px; border: 2px solid #2b1d14; margin-right: 4px; vertical-align: -2px; }
+.px-stat { display: flex; flex-direction: column; line-height: 1; }
+.px-stat b { font-family: "Press Start 2P", monospace; font-size: 12px; }
+.px-stat span { font-size: 16px; color: #6b4a33; }
+.px-busy { font-family: "Press Start 2P", monospace; font-size: 9px; color: #7a3d12; animation: pxblink 0.8s steps(2) infinite; }
+.px-timeline { flex: 1 1 100%; font-family: system-ui, sans-serif; font-size: 12px; }
+.px-timeline .card { margin: 0; padding: 0; border: 0; background: transparent; box-shadow: none; }
+.px-timeline .card-head, .px-timeline .tl-legend { display: none; }
+.px-bottom .px-disclaimer { position: static; background: none; padding: 0; margin: 0; max-width: none; flex: 1 1 100%; font-family: system-ui, sans-serif; font-size: 11px; color: #6b4a33; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.px-bottom .px-zoomrow { margin-left: auto; }
+
+
+.px-toast { position: absolute; top: 66px; left: 50%; transform: translateX(-50%); z-index: 5; font-family: "Press Start 2P", monospace; font-size: 10px;
+  background: #2b1d14; color: #ffd76a; padding: 7px 10px; border: 3px solid #ffd76a; max-width: 70vw; }
+.px-toast.err { top: auto; bottom: 170px; background: #5a1414; border-color: #ffb0a0; color: #fff; }
+
+.px-err { position: fixed; inset: 0; display: flex; align-items: center; justify-content: center; background: #3b7d2a; font-family: "VT323", monospace; font-size: 20px; }
+.px-err .px-panel { position: static; max-width: 560px; }
+@keyframes pxblink { to { visibility: hidden; } }
+
+/* resources bar, scenario cards, selection box */
+.px-res { font-family: "Press Start 2P", monospace; font-size: 11px; background: #fff6dc; border: 3px solid #663931; padding: 3px 8px; display: flex; align-items: center; gap: 4px; }
+.px-res small { font-size: 8px; color: #6b4a33; }
+.px-scen { display: grid; grid-template-columns: 1fr 1fr; gap: 5px; }
+.px-card-btn { text-align: left; background: #fff6dc; border: 3px solid #663931; box-shadow: inset -3px -3px 0 #e8d1a0; padding: 3px 6px; cursor: pointer; font-family: "VT323", monospace; line-height: 1; }
+.px-card-btn b { display: block; font-size: 18px; font-weight: normal; color: #2b1d14; }
+.px-card-btn span { font-size: 14px; color: #6b4a33; }
+.px-card-btn.on { background: #ffd76a; border-color: #7a3d12; }
+.px-selbox { background: #fff3c8; border: 3px dashed #c98a1a; padding: 6px 8px; margin: 6px 0; font-size: 18px; }
+.px-check { display: flex; gap: 6px; align-items: flex-start; font-size: 17px; line-height: 1; margin: 4px 0; }
+
+/* farm actions view */
+.px-top { gap: 8px; }
+.px-top .px-res { font-size: 10px; padding: 2px 6px; }
+.px-sw { display: inline-block; width: 10px; height: 10px; border: 2px solid #2b1d14; margin-right: 4px; vertical-align: -1px; }
+.px-scores { display: grid; grid-template-columns: repeat(4, minmax(150px, 1fr)); gap: 2px 12px; flex: 1 1 100%; }
+.px-score { display: grid; grid-template-columns: auto 1fr 30px; gap: 6px; align-items: center; font-size: 16px; white-space: nowrap; }
+.px-score .px-bar { margin: 0; height: 10px; }
+.px-score b { font-family: "Press Start 2P", monospace; font-size: 9px; text-align: right; }
+.px-strip { flex: 1 1 100%; display: grid; grid-template-columns: repeat(40, 1fr); gap: 2px; }
+.px-cell { height: 16px; border: 2px solid #663931; padding: 0; font-family: "VT323", monospace; font-size: 12px; line-height: 1; cursor: pointer; color: #2b1d14; }
+.px-cell.now { outline: 3px solid #2b1d14; }
+.px-actions, .px-gauges { font-family: "VT323", monospace; margin-top: 6px; }
+.px-sub2 { font-size: 16px; color: #6b4a33; margin: 0 0 4px; }
+.px-act { display: flex; justify-content: space-between; gap: 8px; font-size: 18px; padding: 2px 6px; border: 2px solid #e8d1a0; margin-bottom: 3px; background: #fffaf0; }
+.px-act.on { border-color: #6abe30; background: #f1fbe6; }
+.px-act.warn { border-color: #d03b3b; background: #fff0ec; }
+.px-act b { font-weight: normal; text-align: right; }
+.px-gauges .px-score { grid-template-columns: 100px 1fr 70px; }
+.px-gauges .px-score b { font-size: 8px; }

@@ -71,10 +71,24 @@ def strategy_rain_share(strategy: str) -> float:
     return round(sum(shares) / len(shares), 3)
 
 
-def strategy_irrigation_cm(strategy: str, rain_mm: float, heat_days: float) -> tuple[float, float, float]:
-    """(water need, rain used, irrigation needed), all cm/yr."""
+def soil_rain_bonus(soil_aws_cm: float | None) -> float:
+    """Soil that holds more water keeps more winter rain for the crop.
+    +/-1 point of rain share per cm of available water storage (0-150 cm)
+    away from 15 cm, capped at +/-0.1. Round numbers, like sim_constants."""
+    if soil_aws_cm is None:
+        return 0.0
+    return max(-0.1, min(0.1, (soil_aws_cm - 15.0) * 0.01))
+
+
+def strategy_irrigation_cm(strategy: str, rain_mm: float, heat_days: float,
+                           soil_aws_cm: float | None = None) -> tuple[float, float, float]:
+    """(water need, rain used, irrigation needed), all cm/yr. `soil_aws_cm`
+    (SSURGO available water storage) nudges how much rain the crop can use."""
+    from .sim_constants import RAIN_SHARE_MAX
+
     need = strategy_water_need_cm(strategy, heat_days)
-    rain_used = min(need, rain_mm / 10 * strategy_rain_share(strategy))
+    share = min(RAIN_SHARE_MAX, max(0.0, strategy_rain_share(strategy) + soil_rain_bonus(soil_aws_cm)))
+    rain_used = min(need, rain_mm / 10 * share)
     return need, round(rain_used, 1), round(need - rain_used, 1)
 
 

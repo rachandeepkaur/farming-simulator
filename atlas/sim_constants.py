@@ -50,3 +50,11 @@ SOIL_DELTA = {
     "drought_tolerant": +1.0,  # deeper roots, more residue
 }
 SOIL_REPEAT_PENALTY = -1.0  # same strategy as last year
+
+# --- Soil pH (farm view) -----------------------------------------------------
+# Most of these crops do best around pH 6-8. Round numbers, illustrative.
+PH_LOW = 6.0           # below this: lime needed
+PH_HIGH = 8.4          # above this: alkaline/sodic stress
+PH_SOIL_PENALTY = -2.0 # soil score per year outside the range
+LIME_TARGET_PH = 6.8   # pH after one lime application
+PH_DRIFT_PER_YEAR = -0.05  # nitrogen fertiliser slowly acidifies soil
