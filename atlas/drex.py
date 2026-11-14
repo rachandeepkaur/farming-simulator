@@ -16,8 +16,27 @@ import httpx
 
 from .questions import QUESTIONS
 
-DREX_URL = "https://api.deepinfra.com/v1/decisions"
+DEEPINFRA_URL = "https://api.deepinfra.com/v1/decisions"
 DEFAULT_MODEL = os.environ.get("DREX_MODEL", "nace-ai/drex-v2.0")
+
+
+def endpoint() -> str:
+    """DREX_BASE_URL + DREX_PATH when set, otherwise the DeepInfra decisions API."""
+    base = os.environ.get("DREX_BASE_URL", "").strip().rstrip("/")
+    if not base:
+        return DEEPINFRA_URL
+    path = os.environ.get("DREX_PATH", "/v1/decisions").strip() or "/v1/decisions"
+    if not path.startswith("/"):
+        path = "/" + path
+    return base + path
+
+
+def api_key() -> str:
+    return os.environ.get("DEEPINFRA_API_KEY") or os.environ.get("DREX_API_KEY") or ""
+
+
+def model_name() -> str:
+    return os.environ.get("DREX_MODEL", "nace-ai/drex-v2.0")
 
 
 class DrexError(RuntimeError):
@@ -25,9 +44,9 @@ class DrexError(RuntimeError):
 
 
 def make_client(max_connections: int = 256) -> httpx.AsyncClient:
-    key = os.environ.get("DEEPINFRA_API_KEY")
+    key = api_key()
     if not key:
-        raise DrexError("DEEPINFRA_API_KEY is not set")
+        raise DrexError("DEEPINFRA_API_KEY is not set (DREX_API_KEY in rotation-atlas/.env also works)")
     return httpx.AsyncClient(
         headers={"Authorization": f"bearer {key}", "Content-Type": "application/json"},
         timeout=httpx.Timeout(30.0, connect=5.0),
@@ -56,18 +75,19 @@ def normalise(raw_answers: dict, questions: dict | None = None) -> dict:
 async def decide(
     client: httpx.AsyncClient,
     state: str,
-    model: str = DEFAULT_MODEL,
+    model: str | None = None,
     retries: int = 3,
     questions: dict | None = None,
 ) -> tuple[dict, float, dict]:
     """One Drex call. Returns (answers, latency_ms of the successful attempt, usage).
     `questions` defaults to the rotation question set; the farm view passes its own."""
     qs = questions or QUESTIONS
+    model = model or model_name()
     body = {"model": model, "state": state, "questions": qs}
     for attempt in range(retries + 1):
         t0 = time.perf_counter()
         try:
-            r = await client.post(DREX_URL, json=body)
+            r = await client.post(endpoint(), json=body)
         except httpx.TransportError as e:
             if attempt == retries:
                 raise DrexError(f"network error: {e}") from e

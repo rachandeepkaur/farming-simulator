@@ -21,6 +21,7 @@ from statistics import mean
 
 from . import crops as cropdb
 from .decide import Decider, decide_states
+from .economics import load_numbers
 
 SEASONS = [("winter", (1, 2, 3)), ("spring", (4, 5, 6)), ("summer", (7, 8, 9)), ("fall", (10, 11, 12))]
 MONTH_ABBR = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
@@ -76,11 +77,13 @@ FARM_SYSTEM = (
     "For yes/no questions answer true or false. For choice questions answer with exactly one option key."
 )
 
-# ---- illustrative constants ----
+# ---- prices and costs (data/farm_economics.json; placeholder until sourced) ----
+_ECON = load_numbers()
 IRRIGATION_CM = {"none": 0.0, "light": 8.0, "full": 18.0}
-PRICE_PER_ACRE = {"processing_tomato": 3500, "winter_wheat": 650, "safflower": 550}  # $/acre at full health
-COST = {"synthetic": 2000, "compost": 300, "lime": 1200, "spray_pests": 1500, "cover_crop": 800}  # $ per field application
-PUMP_COST_PER_CM_ACRE = 14.0
+PRICE_PER_ACRE = _ECON["price_per_acre"]
+COST = _ECON["cost"]
+PUMP_COST_PER_CM_ACRE = _ECON["pump_cost_per_cm_acre"]
+ECONOMICS_PLACEHOLDER = _ECON["placeholder"]
 PUMP_TO_AQUIFER = 0.35          # cm of farm-average storage lost per cm pumped on one field, / n fields
 RECHARGE_SHARE = 0.3
 LIME_TARGET_PH = 6.8
@@ -99,8 +102,8 @@ FEED_PER_COW = 0.125        # loads per cow per season
 MANURE_PER_COW = 0.125      # loads per cow per season
 RESIDUE_TO_COMPOST = 0.6    # composting shrinks residue
 COMPOST_CAP = 40.0          # the pile can't grow forever; overflow is wasted
-FEED_PRICE = 600            # $ per load of bought feed
-MILK_PER_COW = 900          # $ per cow per season when fully fed
+FEED_PRICE = _ECON["feed_price"]
+MILK_PER_COW = _ECON["milk_per_cow"]
 
 
 def _rnd(*xs) -> float:
@@ -262,7 +265,7 @@ def _allocate(results: dict, key: str, stock: int, sev, option=None) -> tuple[se
 
 async def iter_seasons(fields: list[dict], monthly: dict, sc, prio, decider: Decider, model_name: str,
                        overrides: dict, stock_per_year: dict, near: str, grace_trend: float, cows: int = 24,
-                       n_years: int = 10, concurrency: int = 128):
+                       n_years: int = 10, concurrency: int = 128, include_state: bool = True):
     years = sorted(monthly)[:n_years]
     wx = scenario_monthly(monthly, years, sc)
     sts = {f["id"]: initial_field_state(f, overrides) for f in fields}
@@ -277,6 +280,7 @@ async def iter_seasons(fields: list[dict], monthly: dict, sc, prio, decider: Dec
         for q in range(4):
             w = season_weather(wx[year], q)
             items = [(f["id"], build_state(f, sts[f["id"]], farm, year, q, w, prio, near)) for f in fields]
+            state_by_id = dict(items)
             t0 = time.perf_counter()
             decided = await decide_states(items, decider, model_name, concurrency)
             wall_ms = (time.perf_counter() - t0) * 1000
@@ -387,6 +391,8 @@ async def iter_seasons(fields: list[dict], monthly: dict, sc, prio, decider: Dec
                     "pests": round(st["pests"], 1), "health": round(st["health"], 1), "soil": round(st["soil"], 1),
                     "harvest_value": round(value), "cost": round(cost), "weather": w, "error": errs[cid],
                 }
+                if include_state:
+                    records[cid]["state"] = state_by_id[cid]
             farm["aquifer_cm"] = round(farm["aquifer_cm"] + grace_trend / 4 + sc.gw_offset_cm_yr / 4
                                        - pumped_total * PUMP_TO_AQUIFER / len(fields) + recharge_total / len(fields), 2)
 
