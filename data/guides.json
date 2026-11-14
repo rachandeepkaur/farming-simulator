@@ -1,0 +1,54 @@
+{
+ "_note": "Crop guides fed through NDI (task 5). Each guide lists the crops it is read for. Add a guide by adding an entry; scripts/build_crops.py picks it up.",
+ "guides": [
+  {
+   "id": "ucipm_tomato_irrigation",
+   "title": "UC IPM Pest Management Guidelines: Tomato, Irrigation",
+   "publisher": "University of California IPM",
+   "url": "https://ccfruitandnuts.ucanr.edu/sites/default/files/2016-03/236970.pdf",
+   "crops": ["processing_tomato"]
+  },
+  {
+   "id": "cdfa_tomato",
+   "title": "Tomato Production in California (FREP fertilization guidelines)",
+   "publisher": "CDFA Fertilizer Research and Education Program / UC Davis",
+   "url": "https://apps1.cdfa.ca.gov/FertilizerResearch/docs/Tomato_Production_CA.pdf",
+   "crops": ["processing_tomato"]
+  },
+  {
+   "id": "nrcs_hairy_vetch",
+   "title": "Plant Guide: Hairy Vetch (Vicia villosa)",
+   "publisher": "USDA NRCS",
+   "url": "https://plants.usda.gov/DocumentLibrary/plantguide/pdf/pg_vivi.pdf",
+   "crops": ["vetch_cover"]
+  },
+  {
+   "id": "uc_small_grain_manual",
+   "title": "Small Grain Production Manual (ANR Publication 8208)",
+   "publisher": "UC Agriculture and Natural Resources",
+   "url": "https://smallgrains.ucdavis.edu/sites/g/files/dgvnsk13316/files/inline-files/8208%285%29.pdf",
+   "crops": ["winter_wheat"]
+  },
+  {
+   "id": "cdfa_wheat",
+   "title": "Wheat Production in California (FREP fertilization guidelines)",
+   "publisher": "CDFA Fertilizer Research and Education Program / UC Davis",
+   "url": "https://apps1.cdfa.ca.gov/FertilizerResearch/docs/Wheat_Production_CA.pdf",
+   "crops": ["winter_wheat"]
+  },
+  {
+   "id": "uc_safflower_21565",
+   "title": "Safflower Production in California (ANR Publication 21565)",
+   "publisher": "UC Agriculture and Natural Resources",
+   "url": "https://oilseeds.ucdavis.edu/sites/g/files/dgvnsk14771/files/inline-files/21565e.pdf",
+   "crops": ["safflower"]
+  },
+  {
+   "id": "cdfa_safflower",
+   "title": "Safflower Production in California (FREP fertilization guidelines)",
+   "publisher": "CDFA Fertilizer Research and Education Program / UC Davis",
+   "url": "https://apps1.cdfa.ca.gov/FertilizerResearch/docs/Safflower_Production_CA.pdf",
+   "crops": ["safflower"]
+  }
+ ]
+}

@@ -1,0 +1,32 @@
+[project]
+name = "rotation-atlas"
+version = "0.1.0"
+description = "Rotation Atlas: data, decision and simulation pipeline (Rachan's lane)"
+requires-python = ">=3.11"
+dependencies = [
+    "anthropic>=1.0",
+    "cryptography>=50.0.2",
+    "fastapi>=0.163.0",
+    "httpx>=0.27",
+    "pypdf>=7.1.0",
+    "uvicorn>=0.54.0",
+]
+
+[project.optional-dependencies]
+grace = ["xarray>=2024.1", "netCDF4>=1.6", "numpy>=1.26"]
+
+[dependency-groups]
+dev = ["pytest>=8", "pytest-asyncio>=0.23"]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["atlas"]
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = ["tests"]
+pythonpath = ["."]
+asyncio_default_fixture_loop_scope = "function"

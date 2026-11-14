@@ -1,0 +1,122 @@
+{
+ "_note": "PLACEHOLDER crop facts so the pipeline runs before NDI output exists. Round numbers, not cited. scripts/build_crops.py writes data/crops.json from the guides in data/guides.json; atlas.crops loads crops.json first, and any fact the guides don't give falls back to this file (marked as a placeholder). water_need_cm is total seasonal crop water use (ET), rain and irrigation together. `months` is the crop's growing window (planting month first, harvest month last); PLACEHOLDER calendars.",
+ "crops": {
+  "processing_tomato": {
+   "name": "Processing tomato",
+   "season": "summer",
+   "water_need_cm": 64,
+   "frost_tolerance": "low",
+   "nitrogen_fixing": false,
+   "root_depth_cm": 150,
+   "heat_tolerance": "moderate",
+   "source": "PLACEHOLDER",
+   "months": [
+    4,
+    5,
+    6,
+    7,
+    8,
+    9
+   ]
+  },
+  "vetch_cover": {
+   "name": "Hairy vetch cover crop",
+   "season": "winter",
+   "water_need_cm": 15,
+   "frost_tolerance": "high",
+   "nitrogen_fixing": true,
+   "root_depth_cm": 90,
+   "heat_tolerance": "low",
+   "source": "PLACEHOLDER",
+   "months": [
+    10,
+    11,
+    12,
+    1,
+    2,
+    3
+   ]
+  },
+  "winter_wheat": {
+   "name": "Winter wheat",
+   "season": "winter",
+   "water_need_cm": 40,
+   "frost_tolerance": "moderate",
+   "nitrogen_fixing": false,
+   "root_depth_cm": 180,
+   "heat_tolerance": "moderate",
+   "source": "PLACEHOLDER",
+   "months": [
+    11,
+    12,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6
+   ]
+  },
+  "safflower": {
+   "name": "Safflower",
+   "season": "spring",
+   "water_need_cm": 65,
+   "frost_tolerance": "moderate",
+   "nitrogen_fixing": false,
+   "root_depth_cm": 300,
+   "heat_tolerance": "high",
+   "source": "PLACEHOLDER",
+   "months": [
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8
+   ]
+  }
+ },
+ "strategies": {
+  "existing": {
+   "label": "Existing rotation",
+   "pattern": "same_year",
+   "crops": [
+    "processing_tomato"
+   ],
+   "bare_months": [
+    "Nov",
+    "Dec",
+    "Jan",
+    "Feb",
+    "Mar"
+   ],
+   "soil_effect": "none"
+  },
+  "cover_crop": {
+   "label": "Winter cover crop",
+   "pattern": "same_year",
+   "crops": [
+    "processing_tomato",
+    "vetch_cover"
+   ],
+   "bare_months": [],
+   "soil_effect": "nitrogen"
+  },
+  "drought_tolerant": {
+   "label": "Drought-tolerant rotation",
+   "pattern": "alternate",
+   "crops": [
+    "winter_wheat",
+    "safflower"
+   ],
+   "bare_months": [
+    "Jul",
+    "Aug",
+    "Sep",
+    "Oct"
+   ],
+   "soil_effect": "organic_matter"
+  }
+ }
+}
