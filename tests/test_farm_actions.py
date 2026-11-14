@@ -73,3 +73,14 @@ def test_api_stream():
     lines = [json.loads(x) for x in r.text.splitlines()]
     assert lines[0]["type"] == "start" and lines[-1]["type"] == "done"
     assert sum(x["type"] == "season" for x in lines) == 4
+    season = next(x for x in lines if x["type"] == "season")
+    assert next(iter(season["cells"].values()))["state"]
+
+
+@pytest.mark.asyncio
+async def test_ten_year_payload_stays_under_3mb():
+    seasons = await _run()
+    # _run is 2 years. Scale the measured season payload to 10 years (40 seasons).
+    blob = json.dumps(seasons)
+    per_season = len(blob) / len(seasons)
+    assert per_season * 40 < 3_000_000

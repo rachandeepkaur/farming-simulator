@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { getJSON } from "./api";
 import FarmMap from "./components/FarmMap";
 import FieldStage from "./components/FieldStage";
+import Race from "./components/Race";
 
 // One farm, run like a god sim (Hay Day x WorldBox). Every season Drex looks
 // at each field and decides its actions: irrigate, fertilize (compost or
@@ -71,6 +72,8 @@ export default function App() {
   const [selected, setSelected] = useState(null);
   const [focus, setFocus] = useState(null);
   const [toast, setToast] = useState(null);
+  const [raceOpen, setRaceOpen] = useState(false);
+  const [questions, setQuestions] = useState(null);
   const abortRef = useRef(null);
   const toastT = useRef(null);
   const mapApi = useRef(null);
@@ -85,6 +88,7 @@ export default function App() {
         setPh(Object.fromEntries(f.fields.map((x) => [x.id, x.soil.ph ?? 7.0])));
       })
       .catch((e) => setError(`Can't reach the API (${e.message}). Start it with: uv run uvicorn server.app:app --port 8000`));
+    getJSON("/api/farm/questions").then((q) => setQuestions(q.questions)).catch(() => {});
   }, []);
 
   const def = farm?.default_supply_cm ?? 40;
@@ -227,7 +231,7 @@ export default function App() {
         <span className="px-logo">ROTATION ATLAS</span>
         <div className="px-res" title="Sustainability: soil, water from surface not aquifer, renewable inputs, waste recycled">🌍 {sc ? sc.sustainability : "–"}</div>
         <div className="px-res" title="Crop value per acre-inch of irrigation (illustrative prices)">⚙ {sc?.efficiency_usd_per_acre_in != null ? `$${sc.efficiency_usd_per_acre_in}/ac-in` : "–"}</div>
-        <div className="px-res" title="Illustrative farm money">🪙 {F ? fmtMoney(F.coins) : "–"}</div>
+        <div className="px-res" title={meta.economics_placeholder ? "Illustrative farm money" : "Farm money from sourced prices"}>🪙 {F ? fmtMoney(F.coins) : "–"}{meta.economics_placeholder ? " illustrative" : ""}</div>
         <div className="px-res" title="Unallocated surface water shares">💧 {Math.max(0, Math.round(free))}</div>
         <div className="px-res" title="Compost pile (loads) made from manure and crop residue">♻ {F ? F.compost.toFixed(0) : "–"}</div>
         <div className="px-res" title="Stock left this year: lime / synthetic N / pesticide / cover seed">🪨{F?.stock_left.lime ?? stock.lime} 🧪{F?.stock_left.synthetic ?? stock.synthetic} 🐛{F?.stock_left.spray_pests ?? stock.spray_pests} 🌱{F?.stock_left.cover_crop ?? stock.cover_crop}</div>
@@ -240,6 +244,7 @@ export default function App() {
         <div className="px-row">
           {Object.entries(meta.models).filter(([, ok]) => ok).map(([m]) => (
             <button key={m} className={`px-btn ${model === m ? "on" : ""}`} onClick={() => setModel(m)}>{m === "rules" ? "Rules" : MODEL_LABEL[m]}</button>))}
+          <button className="px-btn" onClick={() => setRaceOpen(true)}>Race</button>
         </div>
       </header>
 
@@ -301,7 +306,7 @@ export default function App() {
         <aside className="px-panel px-card">
           <div className="px-row between"><p className="px-title">Field {selected} · {CROP_SHORT[rec.crop]} · {rec.season} {rec.year}</p><button className="px-btn" onClick={() => setSelected(null)}>×</button></div>
           <div className="px-stage"><FieldStage frame={stageFrame} meta={meta} /></div>
-          <ActionCard rec={rec} model={MODEL_LABEL[model]} timing={season.timing} />
+          <ActionCard rec={rec} model={MODEL_LABEL[model]} timing={season.timing} questions={questions} />
           <Gauges rec={rec} soilSrc={selField.soil.source} share={supply[selected] ?? def} />
         </aside>
       )}
@@ -327,18 +332,23 @@ export default function App() {
                     style={{ background: s.farm.scores.sustainability > 80 ? "#6abe30" : s.farm.scores.sustainability > 60 ? "#fbd34d" : "#d03b3b", opacity: k > si ? 0.45 : 1 }}
                     onClick={() => { setIndex(k * 3); setPlaying(false); }}>{s.q === 0 ? String(s.year).slice(2) : ""}</button>))}
         </div>
-        <p className="px-disclaimer">Illustrative what-if, not a forecast: prices, costs, herd and compost numbers are round illustrative values. Suggestions only; the farmer and advisor decide.
+        <p className="px-disclaimer">What-if, not a forecast. Suggestions only; the farmer and advisor decide.
+          {meta.economics_placeholder ? " Prices, costs, herd and compost numbers are round illustrative values." : ""}
           {farm.fields.some((f) => f.soil.source === "estimate") ? " Soil is an estimate until scripts/build_farm.py pulls SSURGO." : ""}
           {meta.crops_placeholder ? " Crop facts are placeholders until the guide extraction runs." : ""}</p>
       </footer>
 
       {toast && <div className="px-toast">{toast}</div>}
       {error && <div className="px-toast err">{error}</div>}
+      {raceOpen && (
+        <Race meta={meta} onClose={() => setRaceOpen(false)}
+              settings={{ supply_cm: supply, ph, pests, crops: cropPlan, stock, cows, preset, rain_pct: rain, temp_delta_c: temp, gw_offset_cm_yr: gw, priorities: prio }} />
+      )}
     </div>
   );
 }
 
-function ActionCard({ rec, model, timing }) {
+function ActionCard({ rec, model, timing, questions }) {
   const p = rec.probs || {};
   const irrP = p.irrigation || {};
   const pct = (v) => (v == null ? "" : ` · ${Math.round(v * 100)}%`);
@@ -354,6 +364,11 @@ function ActionCard({ rec, model, timing }) {
       {rec.review && <div className="px-act warn"><span>⚑ Local review</span><b>borderline call</b></div>}
       {rec.hits.length > 0 && <div className="px-act warn"><span>Crop hurt by</span><b>{rec.hits.join(", ")}</b></div>}
       <div className="px-act"><span>This season</span><b>{rec.harvest_value ? `harvest ${fmtMoney(rec.harvest_value)} · ` : ""}cost {fmtMoney(rec.cost)}</b></div>
+      <details>
+        <summary>What Drex saw</summary>
+        <pre className="px-pre">{rec.state || "State text was not included in this run."}</pre>
+        {questions && <p className="px-hint">Questions: {Object.keys(questions).join(", ")}</p>}
+      </details>
     </section>
   );
 }

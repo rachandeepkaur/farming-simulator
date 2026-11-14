@@ -92,5 +92,13 @@
 .px-act.on { border-color: #6abe30; background: #f1fbe6; }
 .px-act.warn { border-color: #d03b3b; background: #fff0ec; }
 .px-act b { font-weight: normal; text-align: right; }
+.px-modal-back { position: fixed; inset: 0; z-index: 8; background: rgba(43, 29, 20, 0.45); display: flex; align-items: center; justify-content: center; }
+.px-modal { position: relative; width: min(720px, 92vw); }
+.px-race { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.px-race-col { background: #fff6dc; border: 3px solid #663931; padding: 8px; }
+.px-race-time { font-family: "Press Start 2P", monospace; font-size: 22px; margin: 8px 0; }
+.px-pre { white-space: pre-wrap; font-family: ui-monospace, monospace; font-size: 12px; line-height: 1.35; background: #2b1d14; color: #fff6dc; padding: 8px; max-height: 220px; overflow: auto; }
+.px-card details { margin-top: 8px; }
+.px-card summary { cursor: pointer; font-family: "VT323", monospace; font-size: 18px; }
 .px-gauges .px-score { grid-template-columns: 100px 1fr 70px; }
 .px-gauges .px-score b { font-size: 8px; }

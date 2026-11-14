@@ -1,6 +1,6 @@
 // Pixel-art world map: the Central Valley grid zooms down to one farm.
-// Drawn on a canvas at "art pixel" resolution and scaled up without
-// smoothing. All art is procedural (no sprite sheets).
+// Drawn on a canvas at art-pixel resolution and scaled up without smoothing.
+// PNGs in /sprites replace the procedural shapes once they load.
 import { useEffect, useRef } from "react";
 
 export const PAL = {
@@ -21,7 +21,7 @@ function ell(g, cx, cy, rx, ry) { for (let y = -ry; y <= ry; y++) for (let x = -
 
 // ------------------------------------------------------------ field tile
 // key: crop|stage|water ; stage 0 seed,1 grow,2 ripe ; water 0 dry,1 normal,2 wet
-export function drawFieldTile(g, fx, fy, seed, cropKey, progress, water) {
+export function drawFieldTile(g, fx, fy, seed, cropKey, progress, water, sprite) {
   const stage = cropKey == null ? -1 : progress < 0.35 ? 0 : progress < 0.7 ? 1 : 2;
   for (let y = 0; y < FP; y++) for (let x = 0; x < FP; x++) {
     const n = rnd(seed + x * 13 + y * 7);
@@ -29,7 +29,10 @@ export function drawFieldTile(g, fx, fy, seed, cropKey, progress, water) {
     g.fillRect(fx + x, fy + y, 1, 1);
   }
   if (water === 0) { g.fillStyle = PAL.soil2; for (let i = 0; i < 6; i++) { let x = fx + 2 + Math.floor(rnd(seed + i) * 20), y = fy + 2 + Math.floor(rnd(seed + i * 3) * 18); for (let k = 0; k < 4; k++) { g.fillRect(x, y, 1, 1); x += rnd(seed + i + k) < 0.5 ? 1 : 0; y += 1; } } }
-  if (stage < 0) { // fallow: furrows
+  if (sprite) {
+    g.imageSmoothingEnabled = false;
+    g.drawImage(sprite, fx, fy, FP, FP);
+  } else if (stage < 0) { // fallow: furrows
     g.fillStyle = water === 0 ? PAL.crack : PAL.soil2; for (let y = 2; y < FP; y += 4) g.fillRect(fx + 1, fy + y, FP - 2, 1);
   } else if (cropKey === "processing_tomato") {
     for (let y = 1; y < FP - 1; y += 3) {
@@ -77,6 +80,21 @@ export default function FarmMap({ farm, fieldState, selected, picked, tool, onPa
   const live = useRef({});
   live.current = { fieldState, selected, picked, tool, onPaint, onSelect, onPick, speed, cows, compost };
   const eng = useRef(null);
+  const spritesRef = useRef({});
+  const spriteEpoch = useRef(0);
+
+  useEffect(() => {
+    const names = ["cow", "sheep", "chicken", "tractor", "sprayer", "harvester", "compost",
+      "processing_tomato_0", "processing_tomato_1", "processing_tomato_2",
+      "winter_wheat_0", "winter_wheat_1", "winter_wheat_2",
+      "safflower_0", "safflower_1", "safflower_2",
+      "vetch_cover_0", "vetch_cover_1", "vetch_cover_2"];
+    for (const name of names) {
+      const img = new Image();
+      img.onload = () => { spritesRef.current[name] = img; spriteEpoch.current += 1; };
+      img.src = `/sprites/${name}.png`;
+    }
+  }, []);
 
   // build world once
   useEffect(() => {
@@ -95,6 +113,7 @@ export default function FarmMap({ farm, fieldState, selected, picked, tool, onPa
     const FW = Math.ceil((fx1 - fx0) / mppF), FH = Math.ceil((fy1 - fy0) / mppF);
     const fcv = document.createElement("canvas"); fcv.width = FW; fcv.height = FH;
     const fg = fcv.getContext("2d");
+    fg.imageSmoothingEnabled = false;
     const toF = (x, y) => [Math.round((x - fx0) / mppF), Math.round((y - fy0) / mppF)];
     for (let y = 0; y < FH; y++) for (let x = 0; x < FW; x++) { const r = rnd(x * 57 + y * 131); fg.fillStyle = r < 0.06 ? PAL.grass2 : r > 0.96 ? PAL.grass3 : PAL.grass; fg.fillRect(x, y, 1, 1); }
     for (let y = 0; y < FH; y++) { const cx = 10 + Math.round(2 * Math.sin(y / 14)); fg.fillStyle = PAL.road2; fg.fillRect(cx - 2, y, 1, 1); fg.fillRect(cx + 9, y, 1, 1); for (let x = cx - 1; x < cx + 9; x++) { fg.fillStyle = rnd(x * 5 + y * 3) < 0.08 ? PAL.foam : x < cx + 1 || x > cx + 6 ? PAL.water2 : PAL.water; fg.fillRect(x, y, 1, 1); } }
@@ -173,8 +192,11 @@ export default function FarmMap({ farm, fieldState, selected, picked, tool, onPa
       const w2s = (x, y) => [((x - cam.x) * cam.s + cv.clientWidth / 2) * d, ((y - cam.y) * cam.s + cv.clientHeight / 2) * d];
       // refresh changed field tiles
       const FS = L.fieldState || {};
-      for (const id in rects) { const st = FS[id] || {}; const key = `${st.crop ?? "-"}|${st.crop ? (st.progress < 0.35 ? 0 : st.progress < 0.7 ? 1 : 2) + (st.progress > 0.85 ? "r" : "") : ""}|${st.water ?? 1}|${st.ph != null && st.ph < 6 ? "acid" : ""}|${st.pests > 55 ? "bugs" : ""}|${st.cover ? "cover" : ""}`;
-        if (tileKey[id] !== key) { tileKey[id] = key; const [x, y] = toF(rects[id].x, rects[id].y); drawFieldTile(fg, x, y, hash(id), st.crop ?? (st.cover ? "vetch_cover" : null), st.crop ? st.progress ?? 0 : 0.6, st.water ?? 1);
+      if (E.spriteEpoch !== spriteEpoch.current) { E.spriteEpoch = spriteEpoch.current; for (const id in tileKey) delete tileKey[id]; }
+      for (const id in rects) { const st = FS[id] || {}; const stageN = st.crop ? (st.progress < 0.35 ? 0 : st.progress < 0.7 ? 1 : 2) : (st.cover ? 1 : null);
+        const spriteName = st.crop ? `${st.crop}_${stageN}` : (st.cover ? "vetch_cover_1" : null);
+        const key = `${st.crop ?? "-"}|${st.crop ? stageN + (st.progress > 0.85 ? "r" : "") : ""}|${st.water ?? 1}|${st.ph != null && st.ph < 6 ? "acid" : ""}|${st.pests > 55 ? "bugs" : ""}|${st.cover ? "cover" : ""}|${spriteName && spritesRef.current[spriteName] ? "s" : ""}`;
+        if (tileKey[id] !== key) { tileKey[id] = key; const [x, y] = toF(rects[id].x, rects[id].y); drawFieldTile(fg, x, y, hash(id), st.crop ?? (st.cover ? "vetch_cover" : null), st.crop ? st.progress ?? 0 : 0.6, st.water ?? 1, spriteName ? spritesRef.current[spriteName] : null);
           if (st.pests > 55) { for (let k = 0; k < 14; k++) { fg.fillStyle = k % 3 ? "#2b1d14" : "#7a3d12"; fg.fillRect(x + 1 + Math.floor(rnd(hash(id) * 11 + k) * (FP - 2)), y + 1 + Math.floor(rnd(hash(id) * 5 + k * 7) * (FP - 2)), 1, 1); } }
           if (st.ph != null && st.ph < 6) { for (let k = 0; k < 40; k++) { fg.fillStyle = rnd(hash(id) + k) < 0.5 ? "#d8d26a" : "#b9b45a"; fg.fillRect(x + Math.floor(rnd(hash(id) * 7 + k) * FP), y + Math.floor(rnd(hash(id) * 3 + k * 5) * FP), 1, 1); } } } }
       ctx.imageSmoothingEnabled = false;
@@ -207,17 +229,23 @@ export default function FarmMap({ farm, fieldState, selected, picked, tool, onPa
         ctx.strokeRect(Math.min(b.x0, b.x1) * d, Math.min(b.y0, b.y1) * d, Math.abs(b.x1 - b.x0) * d, Math.abs(b.y1 - b.y0) * d); }
       const a2s = (ax, ay) => w2s(fx0 + ax * mppF, fy0 + ay * mppF);
       // compost pile grows with the farm's compost
-      { const loads = L.compost || 0; const ph2 = Math.min(6, 1 + loads / 7); const [cx2, cy2] = a2s(E.compostAt[0] - 5, E.compostAt[1] - ph2);
-        for (let k = 0; k < ph2; k++) { ctx.fillStyle = k % 2 ? "#6b4a2b" : "#8a6238"; ctx.fillRect(cx2 + k * scF, cy2 + k * scF, (10 - 2 * k) * scF, scF); } }
+      { const loads = L.compost || 0; const pile = spritesRef.current.compost;
+        if (pile) { const s = Math.min(18, 8 + loads / 5) * scF; const [cx2, cy2] = a2s(E.compostAt[0] - 4, E.compostAt[1] - 6); ctx.drawImage(pile, cx2, cy2, s, s); }
+        else { const ph2 = Math.min(6, 1 + loads / 7); const [cx2, cy2] = a2s(E.compostAt[0] - 5, E.compostAt[1] - ph2);
+          for (let k = 0; k < ph2; k++) { ctx.fillStyle = k % 2 ? "#6b4a2b" : "#8a6238"; ctx.fillRect(cx2 + k * scF, cy2 + k * scF, (10 - 2 * k) * scF, scF); } } }
       // herd and hens wander
       const nCow = Math.min(E.herd.length, Math.round((L.cows || 0) / 2));
       const wander = (a, x0, y0, x1, y1) => { a.t -= dt; if (a.t <= 0) { a.tx = x0 + Math.random() * (x1 - x0); a.ty = y0 + Math.random() * (y1 - y0); a.t = 2 + Math.random() * 5; }
         const dx = a.tx - a.x, dy = a.ty - a.y, dd = Math.hypot(dx, dy); if (dd > 0.5) { a.x += dx / dd * dt * 2.5; a.y += dy / dd * dt * 2.5; a.dir = dx > 0 ? 1 : -1; } };
       for (let k = 0; k < nCow; k++) { const a = E.herd[k]; wander(a, E.pas.x0 + 3, E.pas.y0 + 3, E.pas.x1 - 6, E.pas.y1 - 5);
-        const [ax, ay] = a2s(a.x, a.y); const u = scF; const f2 = (cx, cy, w2, h2, c) => { ctx.fillStyle = c; ctx.fillRect(ax + (a.dir > 0 ? cx : 6 - cx - w2) * u, ay + cy * u, w2 * u, h2 * u); };
-        if (a.kind === "sheep") { f2(0, 0, 4, 3, "#f4f4f0"); f2(4, 1, 2, 2, "#2b1d14"); f2(1, 3, 1, 1, "#2b1d14"); f2(3, 3, 1, 1, "#2b1d14"); }
-        else { f2(0, 0, 5, 3, "#ffffff"); f2(1, 0, 2, 1, "#2b1d14"); f2(3, 1, 1, 2, "#2b1d14"); f2(5, 0, 2, 2, "#e8b4a0"); f2(0, 3, 1, 1, "#2b1d14"); f2(4, 3, 1, 1, "#2b1d14"); } }
-      for (const a of E.hens) { wander(a, E.barn[0] - 10, E.roadY - 4, E.barn[0] + 10, E.roadY + 2); const [ax, ay] = a2s(a.x, a.y); ctx.fillStyle = "#fff"; ctx.fillRect(ax, ay, 2 * scF, 2 * scF); ctx.fillStyle = "#d43f3f"; ctx.fillRect(ax + (a.dir > 0 ? 2 : -1) * scF, ay, scF, scF); }
+        const [ax, ay] = a2s(a.x, a.y); const u = scF; const animal = spritesRef.current[a.kind];
+        if (animal) { const w = 8 * u; ctx.save(); if (a.dir < 0) { ctx.translate(ax + w, ay); ctx.scale(-1, 1); ctx.drawImage(animal, 0, 0, w, w); } else ctx.drawImage(animal, ax, ay, w, w); ctx.restore(); }
+        else { const f2 = (cx, cy, w2, h2, c) => { ctx.fillStyle = c; ctx.fillRect(ax + (a.dir > 0 ? cx : 6 - cx - w2) * u, ay + cy * u, w2 * u, h2 * u); };
+          if (a.kind === "sheep") { f2(0, 0, 4, 3, "#f4f4f0"); f2(4, 1, 2, 2, "#2b1d14"); f2(1, 3, 1, 1, "#2b1d14"); f2(3, 3, 1, 1, "#2b1d14"); }
+          else { f2(0, 0, 5, 3, "#ffffff"); f2(1, 0, 2, 1, "#2b1d14"); f2(3, 1, 1, 2, "#2b1d14"); f2(5, 0, 2, 2, "#e8b4a0"); f2(0, 3, 1, 1, "#2b1d14"); f2(4, 3, 1, 1, "#2b1d14"); } } }
+      for (const a of E.hens) { wander(a, E.barn[0] - 10, E.roadY - 4, E.barn[0] + 10, E.roadY + 2); const [ax, ay] = a2s(a.x, a.y); const hen = spritesRef.current.chicken;
+        if (hen) { const w = 6 * scF; ctx.save(); if (a.dir < 0) { ctx.translate(ax + w, ay); ctx.scale(-1, 1); ctx.drawImage(hen, 0, 0, w, w); } else ctx.drawImage(hen, ax, ay, w, w); ctx.restore(); }
+        else { ctx.fillStyle = "#fff"; ctx.fillRect(ax, ay, 2 * scF, 2 * scF); ctx.fillStyle = "#d43f3f"; ctx.fillRect(ax + (a.dir > 0 ? 2 : -1) * scF, ay, scF, scF); } }
       // machines
       const spd = 34 * (L.speed || 1);
       E.agents = E.agents.filter((a) => {
@@ -234,12 +262,16 @@ export default function FarmMap({ farm, fieldState, selected, picked, tool, onPa
         ctx.fillStyle = { lime: "#ffffff", harvest: "#e2c25a", water: "#5fcde4", spray: "#9be36a", compost: "#5a3a22", synthetic: "#cfe6ff", seed: "#c9a24a", plant: "#a07040" }[p.kind] || "#a07040"; ctx.fillRect(px2, py2, Math.max(2, scF * 0.9), Math.max(2, scF * 0.9)); }
       ctx.globalAlpha = 1;
       for (const a of E.agents) {
-        const u = scF; const [ax, ay] = a2s(a.x - 4, a.y - 3); const px = (cx, cy, w, h, c) => { ctx.fillStyle = c; ctx.fillRect(ax + (a.dir > 0 ? cx : 8 - cx - w) * u, ay + cy * u, w * u, h * u); };
-        if (a.kind === "lime" || a.kind === "spray" || a.kind === "synthetic") { px(0, 1, 5, 3, a.kind === "spray" ? "#3e8e3e" : "#3b6fb6"); px(1, 0, 3, 1, "#dfe7f2"); px(5, 2, 3, 2, "#2d7d32"); px(6, 0, 2, 2, "#cfe6ff"); px(-3, 2, 3, 1, "#9badb7"); }
-        else if (a.kind === "compost") { px(0, 1, 5, 3, "#6b4a2b"); px(0, 0, 5, 1, "#3a2414"); px(5, 2, 3, 2, "#c43c2c"); px(6, 0, 2, 2, "#cfe6ff"); }
-        else if (a.kind === "harvest") { px(1, 0, 6, 4, "#c43c2c"); px(6, 0, 2, 2, "#cfe6ff"); px(-2, 1, 3, 3, "#e8c040"); }
-        else { px(1, 1, 5, 3, "#2d8a3a"); px(5, 0, 2, 2, "#cfe6ff"); px(-1, 2, 2, 1, "#8f563b"); }
-        px(1, 4, 2, 2, "#1d1d1d"); px(5, 4, 2, 2, "#1d1d1d");
+        const u = scF; const [ax, ay] = a2s(a.x - 4, a.y - 3);
+        const machineName = a.kind === "spray" ? "sprayer" : a.kind === "harvest" ? "harvester" : "tractor";
+        const machine = spritesRef.current[machineName];
+        if (machine) { const w = 12 * u; ctx.save(); if (a.dir < 0) { ctx.translate(ax + w, ay); ctx.scale(-1, 1); ctx.drawImage(machine, 0, 0, w, w); } else ctx.drawImage(machine, ax, ay, w, w); ctx.restore(); }
+        else { const px = (cx, cy, w, h, c) => { ctx.fillStyle = c; ctx.fillRect(ax + (a.dir > 0 ? cx : 8 - cx - w) * u, ay + cy * u, w * u, h * u); };
+          if (a.kind === "lime" || a.kind === "spray" || a.kind === "synthetic") { px(0, 1, 5, 3, a.kind === "spray" ? "#3e8e3e" : "#3b6fb6"); px(1, 0, 3, 1, "#dfe7f2"); px(5, 2, 3, 2, "#2d7d32"); px(6, 0, 2, 2, "#cfe6ff"); px(-3, 2, 3, 1, "#9badb7"); }
+          else if (a.kind === "compost") { px(0, 1, 5, 3, "#6b4a2b"); px(0, 0, 5, 1, "#3a2414"); px(5, 2, 3, 2, "#c43c2c"); px(6, 0, 2, 2, "#cfe6ff"); }
+          else if (a.kind === "harvest") { px(1, 0, 6, 4, "#c43c2c"); px(6, 0, 2, 2, "#cfe6ff"); px(-2, 1, 3, 3, "#e8c040"); }
+          else { px(1, 1, 5, 3, "#2d8a3a"); px(5, 0, 2, 2, "#cfe6ff"); px(-1, 2, 2, 1, "#8f563b"); }
+          px(1, 4, 2, 2, "#1d1d1d"); px(5, 4, 2, 2, "#1d1d1d"); }
       }
       // weather
       const W = L.fieldState?.__weather;
